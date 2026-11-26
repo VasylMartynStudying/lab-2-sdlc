@@ -1,7 +1,26 @@
-// Критичне завдання: метод Гаусса на системі варіанта з a₁₁ = 0.
+// Критичне завдання: метод Гаусса на системі варіанта з a₁₁ = 0 та з малим a₁₁.
+// Наївна версія (без вибору головного елемента) залишена тут лише для порівняння.
 const { LinearSystem } = require('../js/system.js');
 const { matVec } = require('../js/matrix.js');
-const gauss = require('../js/gauss.js');
+const { GaussSolver } = require('../js/gauss.js');
+
+function gaussNaive(A, b) {
+  const n = A.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let k = 0; k < n - 1; k++) {
+    for (let i = k + 1; i < n; i++) {
+      const factor = M[i][k] / M[k][k];
+      for (let j = k; j <= n; j++) M[i][j] -= factor * M[k][j];
+    }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = M[i][n];
+    for (let j = i + 1; j < n; j++) sum -= M[i][j] * x[j];
+    x[i] = sum / M[i][i];
+  }
+  return x;
+}
 
 function withA11(value, n) {
   const s = LinearSystem.fromVariant(n, 1);
@@ -16,20 +35,22 @@ function swapped(n) {
   return new LinearSystem(order(s.A), order(s.b), s.exact);
 }
 
-const cases = [
-  ['рядки 1 і 2 переставлено', swapped(5)],
-  ['a11 = 0', withA11(0, 5)],
-  ['a11 = 1e-17', withA11(1e-17, 5)],
-];
-
-for (const [name, system] of cases) {
-  console.log(`\n${name}: a11 = ${system.A[0][0]}`);
-  for (const [method, solve] of Object.entries(gauss)) {
-    if (typeof solve !== 'function') continue;
-    const out = solve(system.A, system.b);
-    const x = Array.isArray(out) ? out : out.x;
-    console.log(`  ${method}`);
-    console.log(`    x = [${x.map((v) => Number(v.toPrecision(6))).join(', ')}]`);
-    console.log(`    ‖x − x*‖ = ${system.errorNorm(x).toExponential(3)}`);
+for (const n of [5, 10, 20]) {
+  const cases = [
+    ['рядки 1 і 2 переставлено', swapped(n)],
+    ['a11 = 0', withA11(0, n)],
+    ['a11 = 1e-17', withA11(1e-17, n)],
+  ];
+  for (const [name, system] of cases) {
+    console.log(`\nn = ${n}, ${name} (a11 = ${Number(system.A[0][0].toPrecision(4))})`);
+    const methods = {
+      'без вибору  ': () => gaussNaive(system.A, system.b),
+      'з вибором   ': () => new GaussSolver().solve(system).x,
+    };
+    for (const [method, solve] of Object.entries(methods)) {
+      const x = solve();
+      console.log(`  ${method} x₁..x₃ = [${x.slice(0, 3).map((v) => Number(v.toPrecision(6))).join('; ')}]`
+        + `  ‖x − x*‖ = ${system.errorNorm(x).toExponential(3)}`);
+    }
   }
 }
