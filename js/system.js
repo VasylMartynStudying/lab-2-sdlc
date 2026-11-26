@@ -69,7 +69,7 @@
         const isExact = /^x\*\s*[:=]/i.test(line);
         if (isExact) line = line.replace(/^x\*\s*[:=]/i, '');
         const values = line.split(/[\s;|]+/).filter(Boolean).map((token) => {
-          const value = /^[+-]?(\d+([.,]\d*)?|[.,]\d+)([eE][+-]?\d+)?$/.test(token)
+          const value = /^[+-]?(\d+([.,]\d+)?|[.,]\d+)([eE][+-]?\d+)?$/.test(token)
             ? Number(token.replace(',', '.'))
             : NaN;
           if (!Number.isFinite(value)) throw new Error(`Рядок ${index + 1}: «${token}» не є числом.`);
