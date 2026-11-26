@@ -36,4 +36,4 @@ for case in data["solutions"]:
     failed |= abs(rj - case["rho"]["jacobi"]) > 0.005 or abs(rs - case["rho"]["seidel"]) > 0.005
 
 print("ПЕРЕВІРКУ НЕ ПРОЙДЕНО" if failed else "Перевірку пройдено.")
-raise SystemExit(failed)
+raise SystemExit(int(failed))
