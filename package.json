@@ -1,0 +1,9 @@
+{
+  "name": "slae-solvers",
+  "private": true,
+  "description": "СЛАР: метод Гаусса з вибором головного елемента, методи Якобі та Зейделя (варіант 3)",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "metrics": "node scripts/metrics.js"
+  }
+}
