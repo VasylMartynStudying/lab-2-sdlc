@@ -1,16 +1,18 @@
 // Малювання розширеної матриці на кроці методу Гаусса.
 (function (root, factory) {
   const api = factory(root);
+  if (typeof module === 'object' && module.exports) module.exports = api;
   root.Slae = Object.assign(root.Slae || {}, api);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   'use strict';
 
   const MONO = 'ui-monospace, "Ubuntu Mono", monospace';
 
+  /** Короткий запис числа. Ненульове значення ніколи не показується як «0». */
   function short(v, digits) {
     if (v === 0) return '0';
     const abs = Math.abs(v);
-    if (abs >= 1000 || abs < 0.001) return v.toExponential(0);
+    if (abs >= 1000 || abs < 0.5 * 10 ** -digits) return v.toExponential(0);
     return String(Number(v.toFixed(digits)));
   }
 
@@ -100,5 +102,5 @@
     }
   }
 
-  return { MatrixView };
+  return { MatrixView, shortNumber: short };
 });
