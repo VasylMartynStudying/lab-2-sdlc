@@ -220,6 +220,8 @@
   // ---------- Анімація ----------
 
   function loadAnimation(frame = 0) {
+    // Спочатку відкидаються старі кадри: вони можуть належати іншій вкладці.
+    state.frames = null;
     player.stop();
     for (const b of document.querySelectorAll('[data-tab]')) {
       b.setAttribute('aria-pressed', String(b.dataset.tab === state.tab));
@@ -227,7 +229,6 @@
     const gauss = state.tab === 'gauss';
     $('gaussView').hidden = !gauss;
     $('iterView').hidden = gauss;
-    state.frames = null;
     const r = state.results && state.results[state.tab];
     if (r && r.ok) {
       if (gauss) {

@@ -31,7 +31,7 @@ h2 { margin: 0 0 10px; font-size: 17px; }
 
 .layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start; padding-top: 16px; padding-bottom: 40px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
-.content { display: grid; gap: 16px; min-width: 0; }
+.content { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
 .content.invalid .results { display: none !important; }
 
 .panel { display: grid; gap: 12px; }
@@ -69,6 +69,6 @@ tr.bad td { background: #fdecec; }
 .caption { min-height: 1.5em; margin: 8px 0; font-family: var(--mono); font-size: 13px; }
 
 @media (max-width: 900px) {
-  .layout { grid-template-columns: 1fr; }
-  .charts { grid-template-columns: 1fr; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .charts { grid-template-columns: minmax(0, 1fr); }
 }
