@@ -1,0 +1,36 @@
+sequenceDiagram
+  actor U as Користувач
+  participant App as app.js
+  participant Sys as LinearSystem
+  participant An as analysis.js
+  participant G as GaussSolver
+  participant It as Jacobi / Seidel
+  participant Ch as Chart
+  participant P as Player
+  participant V as MatrixView
+  U->>App: кнопка «n = 20»
+  App->>Sys: fromVariant(20, d)
+  Sys-->>App: system
+  App->>App: readOptions(), checkDominance(A)
+  App->>An: solveAll(system, options)
+  An->>G: solve(system)
+  G-->>An: x або SingularMatrixError
+  alt матриця невироджена
+    loop для Якобі та Зейделя
+      An->>It: solve(system, record)
+      It->>Sys: residualNorm(x)
+      It-->>An: x, iterations, residuals, history
+    end
+  end
+  An-->>App: results (метрики, час)
+  App->>Ch: setSeries(розв’язки, нев’язки)
+  Ch->>Ch: seriesBounds(), draw()
+  App->>G: solve(system, record)
+  G-->>App: steps
+  App->>P: load(steps.length)
+  U->>App: «Пуск»
+  App->>P: toggle()
+  loop кожен кадр
+    P->>App: showFrame(index)
+    App->>V: show(steps[index])
+  end

@@ -1,0 +1,78 @@
+classDiagram
+  direction TB
+  class LinearSystem {
+    +n : int
+    +A : number[][]
+    +b : number[]
+    +exact : number[]
+    +fromVariant(n, d)$ LinearSystem
+    +parse(text)$ LinearSystem
+    +toText() string
+    +residualNorm(x) number
+    +errorNorm(x) number
+  }
+  class GaussSolver {
+    +id : string
+    +name : string
+    +solve(system, options) Result
+  }
+  class IterativeSolver {
+    <<abstract>>
+    +id : string
+    +name : string
+    +step(A, b, x, next)*
+    +solve(system, options) Result
+  }
+  class JacobiSolver {
+    +step(A, b, x, next)
+  }
+  class SeidelSolver {
+    +step(A, b, x, next)
+  }
+  class SingularMatrixError {
+    +column : int
+  }
+  class Analysis {
+    <<module>>
+    +solveAll(system, options)
+    +measureTime(fn, minTotal)
+    +spectralRadius(system, id)
+    +compareSizes(options)
+  }
+  class App {
+    <<module>>
+    +solve(system)
+    +render()
+    +loadAnimation(frame)
+    +showFrame(index, playing)
+  }
+  class Chart {
+    +setSeries(series)
+    +draw()
+  }
+  class MatrixView {
+    +show(step)
+    +draw()
+  }
+  class Player {
+    +index : int
+    +speed : number
+    +load(count, index)
+    +play()
+    +stop()
+    +seek(index)
+    +advance(dt)
+  }
+  IterativeSolver <|-- JacobiSolver
+  IterativeSolver <|-- SeidelSolver
+  GaussSolver ..> SingularMatrixError : кидає
+  GaussSolver ..> LinearSystem
+  IterativeSolver ..> LinearSystem
+  Analysis ..> GaussSolver : створює
+  Analysis ..> IterativeSolver : створює
+  App ..> LinearSystem : створює
+  App ..> Analysis : викликає
+  App ..> GaussSolver : кроки анімації
+  App "1" *-- "4" Chart
+  App "1" *-- "1" MatrixView
+  App "1" *-- "1" Player
