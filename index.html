@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>СЛАР: Гаусс, Якобі, Зейдель — варіант 3</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="top">
+    <p class="eyebrow">Лабораторна робота № 2 · варіант 3</p>
+    <h1>Системи лінійних рівнянь</h1>
+    <p class="lede">Метод Гаусса з вибором головного елемента, методи Якобі та Зейделя: точність, збіжність і швидкодія.</p>
+  </header>
+
+  <main class="layout">
+    <aside class="card panel">
+      <fieldset>
+        <legend>Розмір системи</legend>
+        <div class="segmented" id="sizes">
+          <button type="button" data-n="5">n = 5</button>
+          <button type="button" data-n="10">n = 10</button>
+          <button type="button" data-n="20">n = 20</button>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Діагональна перевага d</legend>
+        <div class="segmented" id="ds">
+          <button type="button" data-d="1">d = 1</button>
+          <button type="button" data-d="0.1">d = 0,1</button>
+        </div>
+        <label>Інше значення
+          <input id="customD" type="text" inputmode="decimal" placeholder="напр. 0,01">
+        </label>
+      </fieldset>
+      <fieldset>
+        <legend>Параметри</legend>
+        <label>Точність ε <input id="eps" type="text" value="1e-10"></label>
+        <label>Ліміт ітерацій <input id="maxIter" type="number" min="20000" max="1000000" step="1000" value="20000"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Методи на графіках</legend>
+        <label class="check gauss"><input type="checkbox" data-method="gauss" checked> Гаусс</label>
+        <label class="check jacobi"><input type="checkbox" data-method="jacobi" checked> Якобі</label>
+        <label class="check seidel"><input type="checkbox" data-method="seidel" checked> Зейдель</label>
+      </fieldset>
+      <fieldset>
+        <legend>Матриця [A | b]</legend>
+        <label>Файл <input id="file" type="file" accept=".txt,.csv,text/plain"></label>
+        <textarea id="matrix" rows="8" spellcheck="false" aria-label="Розширена матриця системи"></textarea>
+        <div class="row">
+          <button type="button" id="solveText" class="primary">Розв’язати</button>
+          <button type="button" id="reset">Повернути варіант</button>
+        </div>
+        <p class="hint">Рядок = коефіцієнти і вільний член. Необов’язково: «x*: …».</p>
+      </fieldset>
+      <fieldset>
+        <legend>Особливі випадки</legend>
+        <div class="row">
+          <button type="button" data-demo="swap">Переставити рядки 1 і 2</button>
+          <button type="button" data-demo="zero">a₁₁ = 0</button>
+          <button type="button" data-demo="singular">Вироджена</button>
+          <button type="button" data-demo="weak">Без переваги</button>
+        </div>
+      </fieldset>
+    </aside>
+
+    <div class="content">
+      <div id="messages" aria-live="polite"></div>
+
+      <section class="card results">
+        <h2 id="title">Результати</h2>
+        <div class="scroll"><table id="metrics"></table></div>
+      </section>
+
+      <div class="results charts">
+        <section class="card">
+          <h2>Розв’язок xᵢ</h2>
+          <canvas id="solutionChart" class="chart" role="img" aria-label="Компоненти розв’язку"></canvas>
+        </section>
+        <section class="card">
+          <h2>Збіжність: ‖Ax − b‖₂</h2>
+          <canvas id="convergenceChart" class="chart" role="img" aria-label="Норма нев’язки від номера ітерації"></canvas>
+        </section>
+      </div>
+
+      <section class="card results" id="animation">
+        <h2>Покрокова анімація</h2>
+        <div class="segmented" id="tabs">
+          <button type="button" data-tab="gauss">Гаусс</button>
+          <button type="button" data-tab="jacobi">Якобі</button>
+          <button type="button" data-tab="seidel">Зейдель</button>
+        </div>
+        <div class="controls">
+          <button type="button" id="play" class="primary">Пуск</button>
+          <button type="button" id="prev" aria-label="Попередній крок">◀</button>
+          <button type="button" id="next" aria-label="Наступний крок">▶</button>
+          <input id="seek" type="range" min="0" max="0" value="0" aria-label="Крок анімації">
+          <label>Кроків/с
+            <select id="speed">
+              <option value="1">1</option>
+              <option value="3" selected>3</option>
+              <option value="10">10</option>
+              <option value="40">40</option>
+            </select>
+          </label>
+        </div>
+        <p id="caption" class="caption"></p>
+        <div id="gaussView"><canvas id="matrixCanvas" class="matrix" role="img" aria-label="Розширена матриця на поточному кроці"></canvas></div>
+        <div id="iterView" class="charts" hidden>
+          <canvas id="iterChart" class="chart" role="img" aria-label="Поточне наближення"></canvas>
+          <canvas id="iterResidual" class="chart" role="img" aria-label="Нев’язка до поточної ітерації"></canvas>
+        </div>
+      </section>
+
+      <section class="card results">
+        <h2>Компоненти розв’язку</h2>
+        <div class="scroll"><table id="solution"></table></div>
+      </section>
+
+      <section class="card results">
+        <h2>Діагональна перевага</h2>
+        <p id="dominanceSummary"></p>
+        <details><summary>Рядки</summary><div class="scroll"><table id="dominance"></table></div></details>
+      </section>
+
+      <section class="card">
+        <h2>Порівняння n = 5, 10, 20</h2>
+        <p class="hint">Система варіанта для d = 1 і d = 0,1 з поточними ε та лімітом.</p>
+        <button type="button" id="compare">Порахувати</button>
+        <div class="scroll"><table id="summary"></table></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="js/matrix.js"></script>
+  <script src="js/system.js"></script>
+  <script src="js/dominance.js"></script>
+  <script src="js/gauss.js"></script>
+  <script src="js/iterative.js"></script>
+  <script src="js/analysis.js"></script>
+  <script src="js/scale.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/matrixView.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
